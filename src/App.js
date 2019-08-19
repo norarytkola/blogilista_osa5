@@ -3,18 +3,17 @@ import './index.css';
 import Blog from './components/Blog';
 import {useState, useEffect} from 'react';
 import blogservice from './services/blogservice'
-import loginService from './services/login'
+import loginService from './services/login';
+import Add from './components/Add';
+import PropTypes from 'prop-types'
 
-const App =()=> {
+const App =(props)=> {
 
 const [username, addusername]=useState('')
 const [password, addpassword]=useState('')
 const [errorMessage, setErrorMessage] = useState(null)
 const [ok, lisaaok]=useState(null)
 const [user, setuser]=useState(null)
-const [title, addtitle]=useState('')
-const [author, addauthor]=useState('')
-const [url, addurl]=useState('')
 
 useEffect(() => {
   const loggedUserJSON = window.localStorage.getItem('loggedUser', username)
@@ -25,36 +24,6 @@ useEffect(() => {
   }
 }, [])
 
-const add =async(event)=> {
-  event.preventDefault()
-  if (title===''|| url===''){
-    setErrorMessage('Täytä kaikki kentät')
-  }else {
-    try {
-      const blogi={
-        title:title,
-        author:author,
-        url:url
-      }
-      await blogservice.create(blogi)
-      lisaaok('Blogin lisäys onnistui')
-      setTimeout(() => {
-        lisaaok(null)
-      }, 5000)
-      addtitle('')
-      addauthor('')
-      addurl('')
-    }
-    
-    catch(exception){
-      setErrorMessage('Blogin lisäys ei onnistunut')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
-  }
-}
-  
 const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -93,7 +62,8 @@ const [blogs, addblogs] =useState([])
       addblogs(blogi))
     }, [])
 
-  const loginForm =()=> (
+  const loginForm =()=> {
+      return (
       <div>
         <h2>Log in to application</h2>
         <form onSubmit={handleLogin}>
@@ -104,17 +74,18 @@ const [blogs, addblogs] =useState([])
           <button type="submit">Sign in</button>
         </form>
       </div>
-  )
+  )}
+ 
 
   const bloglist=()=>(
       <div>
         <h2>Blogs</h2>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} user={user} blog={blog} />
         )}
       </div>
     )
-
+ 
     return (
       <><h1>Blogit</h1>
       <div className="error">{errorMessage}</div>
@@ -124,16 +95,13 @@ const [blogs, addblogs] =useState([])
         <div>
           <p>{user.name} logged in</p>
           {bloglist()}
-          <form onSubmit={add}>
-            title:  <input value={title} onChange={({ target }) => addtitle(target.value)} /><br/>
-            author: <input value={author} onChange={({ target }) => addauthor(target.value)} /><br/>
-            url:    <input value={url} onChange={({ target }) => addurl(target.value)} /><br/>
-                <button type="submit" >lisää</button>
-                </form>
+          <Add />
           <div className="nappi"><button onClick={ulos}>Kirjaudu ulos</button></div>
         </div>
-      }</>
+      }
+      </>
     ) 
+    
 }
 
 export default App;
