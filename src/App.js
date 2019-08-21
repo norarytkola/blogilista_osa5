@@ -7,15 +7,33 @@ import loginService from './services/login';
 import {useField} from './hook'
 
 
-const App =(props)=> {
+const App =()=> {
 
 const [errorMessage, setErrorMessage] = useState(null)
 const [ok, lisaaok]=useState(null)
 const [user, setuser]=useState(null)
+
+useEffect(() => {
+  const loggedUserJSON = window.localStorage.getItem('loggedUser', u)
+  if (loggedUserJSON) {
+    const user = JSON.parse(loggedUserJSON)
+    setuser(user)
+    blogservice.setToken(user.token)
+  }
+}, [])
+
 const [title, addtitle]=useState('')
 const [author, addauthor]=useState('')
 const [url, addurl]=useState('')
-const [visible, setvisible]=useState(false)
+const [visible, setVisible]=useState(false)
+const [blogs, addblogs] =useState([])
+  useEffect(() => {
+   blogservice
+    .getAll()
+     .then(blogi=>
+        addblogs(blogi))
+    }, [])
+
 
 const add =async(event)=> {
     event.preventDefault()
@@ -47,15 +65,6 @@ const add =async(event)=> {
     }
   }
 
-useEffect(() => {
-  const loggedUserJSON = window.localStorage.getItem('loggedUser', u)
-  if (loggedUserJSON) {
-    const user = JSON.parse(loggedUserJSON)
-    setuser(user)
-    blogservice.setToken(user.token)
-  }
-}, [])
-
 const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -81,20 +90,15 @@ const handleLogin = async (event) => {
       }, 5000)
     }
   } 
+
 const ulos =async (event) =>{
   window.localStorage.clear()
   blogservice.setToken(null)
   setuser(null)
-}
+  }
 
-const [blogs, addblogs] =useState([])
-  useEffect(() => {
-   blogservice
-    .getAll()
-     .then(blogi=>
-      addblogs(blogi))
-    }, [])
   const addFrom=() =>{
+
     if (visible===true){
       return(<>
           <div className="ok">{ok}</div><div className="error">{errorMessage}</div>
@@ -103,12 +107,13 @@ const [blogs, addblogs] =useState([])
               author: <input value={author} onChange={({ target }) => addauthor(target.value)} /><br/>
               url:    <input value={url} onChange={({ target }) => addurl(target.value)} /><br/>
                   <button type="submit" >lisää</button>
-                  <button onClick={() => setvisible(false)}>Peruuta</button>
+                  <button onClick={() => setVisible(false)}>Peruuta</button>
              </form></>)}
-   else {
+    else {
       return(
-       <><button onClick={() => setvisible(true)}>Lisää blogi</button></>
-      )}}
+       <><button onClick={() => setVisible(true)}>Lisää blogi</button></>
+      )
+    }}
 
   const userName=useField('text')
   const u=userName.value
@@ -150,7 +155,7 @@ const [blogs, addblogs] =useState([])
       <div>
         <h2>Blogs</h2>
         {blogs.map(blog =>
-          <Blog key={blog.id} user={user} blog={blog} poista={() => poista(blog.id)}/>
+          <Blog key={blog.id} blog={blog} poista={() => poista(blog.id)}/>
         )}
       </div>
     )

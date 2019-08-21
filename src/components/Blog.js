@@ -3,12 +3,13 @@ import {useState} from 'react'
 import blogservice from '../services/blogservice'
 
 
-const Blog = (props, { blog }) => {
-  const [visible, setVisible]=useState(false)
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [ok, lisaaok]=useState(null)
+const Blog = (props) => {
+const [visible, setVisible]=useState(false)
+const [errorMessage, setErrorMessage] = useState(null)
+const [ok, lisaaok]=useState(null)
+let blog=props.blog
     
-  const like =async(event)=>{
+  const like =async()=>{
     const id=blog.id
     const number=Number(blog.likes +1)
     const tykatty={
@@ -33,7 +34,6 @@ const Blog = (props, { blog }) => {
       
   }}
 
-
 if (visible===true){
   return(<div className="rajaamaton"><div className="ok">{ok}</div><div className="error">{errorMessage}</div>
     <div className="Blog"><div onClick={() => setVisible(false)}>
@@ -47,14 +47,14 @@ if (visible===true){
   </div>
   <div/>
   </div>
-  )} else if (visible===false){
+  )} else {
 
 return(
   <div className="rajoitettu"><div className="ok">{ok}</div><div className="error">{errorMessage}</div>
   <div className="Blog"><div onClick={() => setVisible(true)}>
     Blogin nimi:  {blog.title} <br/>
     <button onClick={() => like()}>Tykkää</button>
-    <button onClick={() => poista()}>Poista</button>
+    <button onClick={props.poista}>Poista</button>
     </div>
   </div><div/></div>
 )
